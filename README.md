@@ -1,36 +1,91 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Gemini 2.0 Flash 聊天應用
 
-## Getting Started
+這是一個使用 React、Next.js、TypeScript 和 Tailwind CSS 建立的聊天應用程式，可以與 Google Gemini 2.0 Flash AI 模型進行互動。
 
-First, run the development server:
+## 功能特色
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- 🤖 與 Google Gemini 2.0 Flash 模型即時對話
+- 💬 美觀的聊天介面設計
+- 📱 響應式設計，支援桌面和行動裝置
+- ⚡ 使用 Next.js 14 App Router
+- 🎨 Tailwind CSS 4.x 樣式設計
+- 🔤 TypeScript 完整類型支援
+- 🎯 Heroicons 圖示庫
+
+## 技術架構
+
+- **前端框架**: React 18 + Next.js 14
+- **語言**: TypeScript
+- **樣式**: Tailwind CSS 4.x
+- **圖示**: Heroicons
+- **AI 模型**: Google Gemini 2.0 Flash
+- **API**: Google Generative AI SDK
+
+## 快速開始
+
+### 前置需求
+
+1. Node.js 18.0 或更高版本
+2. npm 或 yarn 套件管理器
+3. Google AI API 金鑰
+
+### 安裝步驟
+
+1. **安裝依賴**
+   ```bash
+   npm install
+   ```
+
+2. **設定環境變數**
+   
+   在 `.env.local` 檔案中設定您的 Google API 金鑰：
+   ```
+   GOOGLE_API_KEY=your_actual_google_api_key_here
+   ```
+
+3. **啟動開發伺服器**
+
+   ```bash
+   npm run dev
+   ```
+
+4. **開啟瀏覽器**
+   前往 [http://localhost:3000](http://localhost:3000) 開始使用
+
+### 取得 Google API 金鑰
+
+1. 前往 [Google AI Studio](https://aistudio.google.com/app/apikey)
+2. 建立新的 API 金鑰
+3. 將金鑰複製到 `.env.local` 檔案中
+
+## 環境變數
+
+在使用應用程式之前，請在 `.env.local` 檔案中設定您的 Google API 金鑰：
+
+```
+GOOGLE_API_KEY=your_actual_google_api_key_here
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 開發命令
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# 啟動開發伺服器
+npm run dev
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# 建立生產版本
+npm run build
 
-## Learn More
+# 啟動生產伺服器
+npm start
+```
 
-To learn more about Next.js, take a look at the following resources:
+## 疑難排解
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 常見問題
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. **API 金鑰錯誤**
+   - 確認 `.env.local` 檔案存在且包含正確的 API 金鑰
+   - 檢查 API 金鑰是否有效且未過期
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+2. **模組找不到錯誤**
+   - 執行 `npm install` 重新安裝依賴
