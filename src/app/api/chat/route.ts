@@ -1,12 +1,13 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
+import { AVAILABLE_MODELS, DEFAULT_MODEL } from '@/models/modelConfig';
 
 // 初始化 Google Generative AI
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
 
 export async function POST(request: NextRequest) {
   try {
-    const { message } = await request.json();
+    const { message, modelId } = await request.json();
 
     if (!message) {
       return NextResponse.json(
@@ -22,14 +23,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 使用 Gemini 2.0 Flash 模型
+    // 驗證模型 ID 並取得模型配置
+    const selectedModelConfig = modelId 
+      ? AVAILABLE_MODELS.find(m => m.id === modelId) || DEFAULT_MODEL
+      : DEFAULT_MODEL;
+
+    // 使用選定的模型
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-2.0-flash",
+      model: selectedModelConfig.id,
       generationConfig: {
         temperature: 0.9,
         topK: 1,
         topP: 1,
-        maxOutputTokens: 2048,
+        maxOutputTokens: selectedModelConfig.maxTokens || 2048,
       },
     });
 
@@ -39,7 +45,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ 
       response: text,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      model: selectedModelConfig.name
     });
 
   } catch (error) {

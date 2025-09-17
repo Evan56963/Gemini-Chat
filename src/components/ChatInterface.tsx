@@ -7,12 +7,15 @@ import {
   ExclamationTriangleIcon,
   ArrowPathIcon
 } from '@heroicons/react/24/outline';
+import { ModelSelector } from './ModelSelector';
+import { useModelSelection } from '@/hooks/useModelSelection';
 
 interface Message {
   id: string;
   text: string;
   isUser: boolean;
   timestamp: string;
+  model?: string;
 }
 
 export default function ChatInterface() {
@@ -21,6 +24,7 @@ export default function ChatInterface() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { selectedModel, changeModel } = useModelSelection();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -51,7 +55,10 @@ export default function ChatInterface() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message: inputMessage }),
+        body: JSON.stringify({ 
+          message: inputMessage,
+          modelId: selectedModel.id
+        }),
       });
 
       const data = await response.json();
@@ -65,6 +72,7 @@ export default function ChatInterface() {
         text: data.response,
         isUser: false,
         timestamp: data.timestamp,
+        model: data.model,
       };
 
       setMessages(prev => [...prev, aiMessage]);
@@ -98,19 +106,25 @@ export default function ChatInterface() {
             </div>
             <div>
               <h1 className="text-xl font-semibold text-gray-900">
-                Gemini 2.0 Flash 聊天
+                Gemini AI 聊天
               </h1>
               <p className="text-sm text-gray-500">
                 與 Google Gemini AI 對話
               </p>
             </div>
           </div>
-          <button
-            onClick={clearChat}
-            className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            清除對話
-          </button>
+          <div className="flex items-center space-x-4">
+            <ModelSelector 
+              selectedModel={selectedModel}
+              onModelChange={changeModel}
+            />
+            <button
+              onClick={clearChat}
+              className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              清除對話
+            </button>
+          </div>
         </div>
       </div>
 
@@ -125,6 +139,9 @@ export default function ChatInterface() {
               </h3>
               <p className="text-gray-500">
                 輸入您的問題或想法，Gemini 會為您提供幫助。
+              </p>
+              <p className="text-sm text-gray-400 mt-2">
+                目前使用模型：{selectedModel.name}
               </p>
             </div>
           )}
@@ -143,11 +160,14 @@ export default function ChatInterface() {
               >
                 <div className="whitespace-pre-wrap">{message.text}</div>
                 <div
-                  className={`text-xs mt-2 ${
+                  className={`text-xs mt-2 flex justify-between items-center ${
                     message.isUser ? 'text-blue-100' : 'text-gray-500'
                   }`}
                 >
-                  {new Date(message.timestamp).toLocaleTimeString('zh-TW')}
+                  <span>{new Date(message.timestamp).toLocaleTimeString('zh-TW')}</span>
+                  {message.model && (
+                    <span className="ml-2">{message.model}</span>
+                  )}
                 </div>
               </div>
             </div>
