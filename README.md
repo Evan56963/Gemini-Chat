@@ -1,10 +1,9 @@
-# Gemini 2.0 Flash 聊天應用
+# Google Gemini AI聊天應用
 
-這是一個使用 React、Next.js、TypeScript 和 Tailwind CSS 建立的聊天應用程式，可以與 Google Gemini 2.0 Flash AI 模型進行互動。
+這是一個使用 React、Next.js、TypeScript 和 Tailwind CSS 建立的聊天應用程式，可以與 Google Gemini AI 模型進行互動。
 
 ## 功能特色
 
-- 🤖 與 Google Gemini 2.0 Flash 模型即時對話
 - 💬 美觀的聊天介面設計
 - 📱 響應式設計，支援桌面和行動裝置
 - ⚡ 使用 Next.js 14 App Router
@@ -18,7 +17,7 @@
 - **語言**: TypeScript
 - **樣式**: Tailwind CSS 4.x
 - **圖示**: Heroicons
-- **AI 模型**: Google Gemini 2.0 Flash
+- **AI 模型**: Google Gemini 2.0 Flash(預設，可自行修改)
 - **API**: Google Generative AI SDK
 
 ## 快速開始
