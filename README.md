@@ -18,7 +18,7 @@
 - **語言**: TypeScript
 - **樣式**: Tailwind CSS 4.x
 - **圖示**: Heroicons
-- **AI 模型**: Google Gemini 2.0 Flash
+- **AI 模型**: Google Gemini 2.0 Flash(可選)
 - **API**: Google Generative AI SDK
 
 ## 快速開始
