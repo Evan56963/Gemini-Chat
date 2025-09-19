@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Gemini 2.0 Flash 聊天",
-  description: "與 Google Gemini 2.0 Flash AI 模型進行智能對話",
+  title: "Google Gemini AI 聊天",
+  description: "與 Google Gemini AI 模型進行智能對話",
 };
 
 export default function RootLayout({

@@ -5,22 +5,20 @@ import {
   PaperAirplaneIcon, 
   ChatBubbleLeftRightIcon,
   ExclamationTriangleIcon,
-  ArrowPathIcon
+  ArrowPathIcon,
+  DocumentIcon,
+  PhotoIcon,
+  TableCellsIcon
 } from '@heroicons/react/24/outline';
 import { ModelSelector } from './ModelSelector';
+import { FileUpload } from './FileUpload';
 import { useModelSelection } from '@/hooks/useModelSelection';
-
-interface Message {
-  id: string;
-  text: string;
-  isUser: boolean;
-  timestamp: string;
-  model?: string;
-}
+import { Message, UploadedFile } from '@/types/chat';
 
 export default function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -35,30 +33,41 @@ export default function ChatInterface() {
   }, [messages]);
 
   const sendMessage = async () => {
-    if (!inputMessage.trim() || isLoading) return;
+    if ((!inputMessage.trim() && selectedFiles.length === 0) || isLoading) return;
+
+    const uploadedFiles: UploadedFile[] = selectedFiles.map(file => ({
+      name: file.name,
+      type: file.type,
+      size: file.size
+    }));
 
     const userMessage: Message = {
       id: Date.now().toString(),
-      text: inputMessage,
+      text: inputMessage || '已上傳檔案',
       isUser: true,
       timestamp: new Date().toISOString(),
+      files: uploadedFiles.length > 0 ? uploadedFiles : undefined
     };
 
     setMessages(prev => [...prev, userMessage]);
     setInputMessage('');
+    const currentFiles = selectedFiles;
+    setSelectedFiles([]);
     setIsLoading(true);
     setError(null);
 
     try {
+      const formData = new FormData();
+      formData.append('message', inputMessage);
+      formData.append('modelId', selectedModel.id);
+      
+      currentFiles.forEach(file => {
+        formData.append('files', file);
+      });
+
       const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          message: inputMessage,
-          modelId: selectedModel.id
-        }),
+        body: formData,
       });
 
       const data = await response.json();
@@ -92,7 +101,34 @@ export default function ChatInterface() {
 
   const clearChat = () => {
     setMessages([]);
+    setSelectedFiles([]);
     setError(null);
+  };
+
+  const renderFiles = (files?: UploadedFile[]) => {
+    if (!files || files.length === 0) return null;
+
+    return (
+      <div className="mt-2 space-y-1">
+        {files.map((file, index) => {
+          let IconComponent = DocumentIcon;
+          
+          if (file.type.startsWith('image/')) {
+            IconComponent = PhotoIcon;
+          } else if (file.type === 'text/csv' || file.type === 'application/vnd.ms-excel' || file.name.endsWith('.csv')) {
+            IconComponent = TableCellsIcon;
+          }
+          
+          return (
+            <div key={index} className="flex items-center space-x-2 text-xs opacity-75">
+              <IconComponent className="w-3 h-3" />
+              <span>{file.name}</span>
+              <span>({(file.size / 1024).toFixed(1)} KB)</span>
+            </div>
+          );
+        })}
+      </div>
+    );
   };
 
   return (
@@ -138,7 +174,7 @@ export default function ChatInterface() {
                 開始與 Gemini 對話
               </h3>
               <p className="text-gray-500">
-                輸入您的問題或想法，Gemini 會為您提供幫助。
+                輸入您的問題或想法，也可以上傳圖片、文字檔案讓 Gemini 分析。
               </p>
               <p className="text-sm text-gray-400 mt-2">
                 目前使用模型：{selectedModel.name}
@@ -159,15 +195,18 @@ export default function ChatInterface() {
                 }`}
               >
                 <div className="whitespace-pre-wrap">{message.text}</div>
+                {renderFiles(message.files)}
                 <div
-                  className={`text-xs mt-2 flex justify-between items-center ${
+                  className={`text-xs mt-2 ${
                     message.isUser ? 'text-blue-100' : 'text-gray-500'
                   }`}
                 >
-                  <span>{new Date(message.timestamp).toLocaleTimeString('zh-TW')}</span>
-                  {message.model && (
-                    <span className="ml-2">{message.model}</span>
-                  )}
+                  <div className="flex justify-between items-center">
+                    <span>{new Date(message.timestamp).toLocaleTimeString('zh-TW')}</span>
+                    {message.model && (
+                      <span className="ml-2">{message.model}</span>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -202,13 +241,18 @@ export default function ChatInterface() {
       {/* Input */}
       <div className="bg-white border-t border-gray-200 px-6 py-4">
         <div className="max-w-4xl mx-auto">
-          <div className="flex items-end space-x-4">
+          <FileUpload
+            files={selectedFiles}
+            onFilesChange={setSelectedFiles}
+            disabled={isLoading}
+          />
+          <div className="flex items-end space-x-4 mt-2">
             <div className="flex-1">
               <textarea
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="輸入您的訊息..."
+                placeholder="輸入您的訊息或上傳檔案..."
                 className="w-full px-4 py-3 border border-gray-300 rounded-xl resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                 rows={1}
                 style={{
@@ -219,7 +263,7 @@ export default function ChatInterface() {
             </div>
             <button
               onClick={sendMessage}
-              disabled={!inputMessage.trim() || isLoading}
+              disabled={(!inputMessage.trim() && selectedFiles.length === 0) || isLoading}
               className="px-6 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"
             >
               <PaperAirplaneIcon className="w-5 h-5" />
@@ -227,7 +271,7 @@ export default function ChatInterface() {
             </button>
           </div>
           <div className="mt-2 text-xs text-gray-500 text-center">
-            按 Enter 發送，Shift + Enter 換行
+            按 Enter 發送，Shift + Enter 換行 | 支援圖片、文字檔案、PDF、CSV
           </div>
         </div>
       </div>
