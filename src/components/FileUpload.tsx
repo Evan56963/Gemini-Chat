@@ -1,29 +1,15 @@
 import React, { useRef } from 'react';
 import { 
   PaperClipIcon, 
-  XMarkIcon,
-  DocumentIcon,
-  PhotoIcon,
-  TableCellsIcon
+  XMarkIcon
 } from '@heroicons/react/24/outline';
-import { UploadedFile } from '@/types/chat';
+import { isFileSupported, getFileIcon } from '@/utils/fileConfig';
 
 interface FileUploadProps {
   files: File[];
   onFilesChange: (files: File[]) => void;
   disabled?: boolean;
 }
-
-const SUPPORTED_FILE_TYPES = {
-  'image/jpeg': { icon: PhotoIcon, label: '圖片' },
-  'image/png': { icon: PhotoIcon, label: '圖片' },
-  'image/gif': { icon: PhotoIcon, label: '圖片' },
-  'image/webp': { icon: PhotoIcon, label: '圖片' },
-  'text/plain': { icon: DocumentIcon, label: '文字檔案' },
-  'application/pdf': { icon: DocumentIcon, label: 'PDF' },
-  'text/csv': { icon: TableCellsIcon, label: 'CSV' },
-  'application/vnd.ms-excel': { icon: TableCellsIcon, label: 'CSV' }
-};
 
 export const FileUpload: React.FC<FileUploadProps> = ({
   files,
@@ -34,14 +20,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
-    const validFiles = selectedFiles.filter(file => {
-      // 檢查檔案類型或副檔名
-      const isValidMimeType = SUPPORTED_FILE_TYPES[file.type as keyof typeof SUPPORTED_FILE_TYPES];
-      const isValidExtension = file.name.toLowerCase().endsWith('.csv') || 
-                              file.name.toLowerCase().endsWith('.txt');
-      
-      return isValidMimeType || isValidExtension;
-    });
+    const validFiles = selectedFiles.filter(isFileSupported);
     
     if (validFiles.length !== selectedFiles.length) {
       alert('部分檔案類型不支援，已自動過濾');
@@ -65,18 +44,6 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
-
-  const getFileIcon = (file: File) => {
-    const fileType = SUPPORTED_FILE_TYPES[file.type as keyof typeof SUPPORTED_FILE_TYPES];
-    if (fileType) return fileType.icon;
-    
-    // 根據副檔名判斷
-    if (file.name.toLowerCase().endsWith('.csv')) {
-      return TableCellsIcon;
-    }
-    
-    return DocumentIcon;
   };
 
   return (

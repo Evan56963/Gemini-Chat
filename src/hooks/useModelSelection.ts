@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ModelConfig, DEFAULT_MODEL, AVAILABLE_MODELS } from '../models/modelConfig';
+import { ModelConfig, DEFAULT_MODEL, AVAILABLE_MODELS } from '../utils/modelConfig';
 
 const MODEL_STORAGE_KEY = 'selected-model';
 

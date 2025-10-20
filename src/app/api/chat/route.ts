@@ -1,32 +1,16 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
-import { AVAILABLE_MODELS, DEFAULT_MODEL } from '@/models/modelConfig';
+import { AVAILABLE_MODELS, DEFAULT_MODEL } from '@/utils/modelConfig';
+import { isFileSupported, isTextFile } from '@/utils/fileConfig';
 
 // 初始化 Google Generative AI
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
 
-// 支援的檔案類型
-const SUPPORTED_FILE_TYPES = {
-  'image/jpeg': 'image/jpeg',
-  'image/png': 'image/png',
-  'image/gif': 'image/gif',
-  'image/webp': 'image/webp',
-  'text/plain': 'text/plain',
-  'application/pdf': 'application/pdf',
-  'text/csv': 'text/csv',
-  'application/vnd.ms-excel': 'text/csv'
-};
-
 async function processFile(file: File) {
   const arrayBuffer = await file.arrayBuffer();
   
-  // 對於 CSV 和文字檔案，直接轉換為文字格式
-  if (file.type === 'text/csv' || 
-      file.type === 'application/vnd.ms-excel' || 
-      file.type === 'text/plain' ||
-      file.name.toLowerCase().endsWith('.csv') ||
-      file.name.toLowerCase().endsWith('.txt')) {
-    
+  // 對於文字檔案，直接轉換為文字格式
+  if (isTextFile(file)) {
     const text = new TextDecoder('utf-8').decode(arrayBuffer);
     
     return {
@@ -68,11 +52,7 @@ export async function POST(request: NextRequest) {
 
     // 驗證檔案類型
     for (const file of files) {
-      const isSupported = SUPPORTED_FILE_TYPES[file.type as keyof typeof SUPPORTED_FILE_TYPES] ||
-                         file.name.toLowerCase().endsWith('.csv') ||
-                         file.name.toLowerCase().endsWith('.txt');
-      
-      if (!isSupported) {
+      if (!isFileSupported(file)) {
         return NextResponse.json(
           { error: `不支援的檔案類型: ${file.type}` },
           { status: 400 }
@@ -146,11 +126,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
-
-export async function GET() {
-  return NextResponse.json(
-    { message: '請使用 POST 方法傳送訊息給 Gemini' },
-    { status: 405 }
-  );
 }

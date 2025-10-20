@@ -5,15 +5,13 @@ import {
   PaperAirplaneIcon, 
   ChatBubbleLeftRightIcon,
   ExclamationTriangleIcon,
-  ArrowPathIcon,
-  DocumentIcon,
-  PhotoIcon,
-  TableCellsIcon
+  ArrowPathIcon
 } from '@heroicons/react/24/outline';
 import { ModelSelector } from './ModelSelector';
 import { FileUpload } from './FileUpload';
 import { useModelSelection } from '@/hooks/useModelSelection';
 import { Message, UploadedFile } from '@/types/chat';
+import { getFileIcon } from '@/utils/fileConfig';
 
 export default function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -22,7 +20,7 @@ export default function ChatInterface() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { selectedModel, changeModel } = useModelSelection();
+  const { selectedModel, changeModel, availableModels } = useModelSelection();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -111,13 +109,9 @@ export default function ChatInterface() {
     return (
       <div className="mt-2 space-y-1">
         {files.map((file, index) => {
-          let IconComponent = DocumentIcon;
-          
-          if (file.type.startsWith('image/')) {
-            IconComponent = PhotoIcon;
-          } else if (file.type === 'text/csv' || file.type === 'application/vnd.ms-excel' || file.name.endsWith('.csv')) {
-            IconComponent = TableCellsIcon;
-          }
+          // 創建臨時 File 物件來使用 getFileIcon 函數
+          const tempFile = new File([], file.name, { type: file.type });
+          const IconComponent = getFileIcon(tempFile);
           
           return (
             <div key={index} className="flex items-center space-x-2 text-xs opacity-75">
@@ -153,6 +147,7 @@ export default function ChatInterface() {
             <ModelSelector 
               selectedModel={selectedModel}
               onModelChange={changeModel}
+              availableModels={availableModels}
             />
             <button
               onClick={clearChat}
