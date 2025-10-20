@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ModelConfig, DEFAULT_MODEL, AVAILABLE_MODELS } from '../utils/modelConfig';
+import { ModelConfig, DEFAULT_MODEL, AVAILABLE_MODELS, getModelById } from '../utils/modelConfig';
 
 const MODEL_STORAGE_KEY = 'selected-model';
 
@@ -9,10 +9,7 @@ export const useModelSelection = () => {
   useEffect(() => {
     const savedModelId = localStorage.getItem(MODEL_STORAGE_KEY);
     if (savedModelId) {
-      const savedModel = AVAILABLE_MODELS.find(m => m.id === savedModelId);
-      if (savedModel) {
-        setSelectedModel(savedModel);
-      }
+      setSelectedModel(getModelById(savedModelId));
     }
   }, []);
 

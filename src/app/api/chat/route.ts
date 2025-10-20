@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
-import { AVAILABLE_MODELS, DEFAULT_MODEL } from '@/utils/modelConfig';
+import { getModelById } from '@/utils/modelConfig';
 import { isFileSupported, isTextFile } from '@/utils/fileConfig';
 
 // 初始化 Google Generative AI
@@ -61,9 +61,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 驗證模型 ID 並取得模型配置
-    const selectedModelConfig = modelId 
-      ? AVAILABLE_MODELS.find(m => m.id === modelId) || DEFAULT_MODEL
-      : DEFAULT_MODEL;
+    const selectedModelConfig = getModelById(modelId || '');
 
     // 使用選定的模型
     const model = genAI.getGenerativeModel({ 

@@ -25,3 +25,13 @@ export const AVAILABLE_MODELS: ModelConfig[] = [
 ];
 
 export const DEFAULT_MODEL = AVAILABLE_MODELS[0];
+
+// 模型查找函數
+export function findModelById(modelId: string): ModelConfig | null {
+  return AVAILABLE_MODELS.find(m => m.id === modelId) || null;
+}
+
+// 找不到時返回預設模型
+export function getModelById(modelId: string): ModelConfig {
+  return findModelById(modelId) || DEFAULT_MODEL;
+}
